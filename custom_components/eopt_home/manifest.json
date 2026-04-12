@@ -1,0 +1,10 @@
+{
+    "domain": "eopt_home",
+    "name": "Eopt Home",
+    "version": "1.0.0",
+    "documentation": "https://github.com/yourusername/eopt_home",
+    "codeowners": [],
+    "config_flow": true,
+    "iot_class": "local_push",
+    "requirements": ["sensio_lib==1.1.0"]
+}

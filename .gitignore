@@ -1,0 +1,5 @@
+config/
+scripts/
+__pycache__/
+*.pyc
+.venv/

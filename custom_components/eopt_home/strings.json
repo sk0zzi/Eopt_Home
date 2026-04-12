@@ -1,0 +1,23 @@
+{
+    "config": {
+        "step": {
+            "user": {
+                "title": "Connect to Eopt Home",
+                "description": "Enter your Eopt Home hub details.",
+                "data": {
+                    "hub_ip": "Hub IP Address",
+                    "username": "Username",
+                    "password": "Password"
+                }
+            }
+        },
+        "error": {
+            "cannot_connect": "Failed to connect to the hub",
+            "invalid_auth": "Invalid username or password",
+            "unknown": "An unexpected error occurred"
+        },
+        "abort": {
+            "already_configured": "This hub is already configured"
+        }
+    }
+}
