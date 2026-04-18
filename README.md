@@ -15,7 +15,13 @@ A [Home Assistant](https://www.home-assistant.io/) custom component for controll
 
 ## Installation
 
-This integration is not yet available through HACS.
+This integration is possible to install through HACS via a manual steps:
+
+1. Go to hack in your home assistant installation.
+2. Press the menu button in the right top corner.
+3. Select "Custom reposotories".
+4. Add this URL to the reposotory field: https://github.com/sk0zzi/Eopt_Home and select integration in type and press add.
+5. Search for "eopt home" in hacs and install it from there. 
 
 To install manually:
 
@@ -25,7 +31,7 @@ To install manually:
 
 ## Configuration
 
-The integration works 100% locally but needs to fetch your project information from Eopt Home on first setup. It logs in, retrieves your project data, and stores it in Home Assistant. A button entity is provided so you can trigger a re-sync whenever needed.
+The integration works 100% locally but needs to fetch your project information from Eopt Home on first setup. It logs in, retrieves your project data, and stores it in Home Assistant. A button entity is provided so you can trigger a re-sync whenever needed. Running a re-sync is only needed if your have changed your configuration in the installation itself. 
 
 You will be prompted for:
 
@@ -35,8 +41,8 @@ You will be prompted for:
 | **Password** | Your Eopt Home password |
 | **Hub IP** | The local IP address of your X1 controller |
 
-> **Tip:** The hub can be difficult to spot on your local network if you don't already know its IP. In my case the hostname started with something like `X-1...`.
+> **Tip:** The hub can be difficult to spot on your local network if you don't already know its IP. In my case the hostname started with something like `X-1...` when I looked for the unit in my routers DHCP leases. 
 
 ## Disclaimer
 
-This integration has only been tested on a single device. It was built to switch a few lights and control scenes — your mileage may vary.
+This integration has only been tested on a single device. It is currently unknown if it will work with all kind of installations using the X1 controller. Feedback / reporting issues are welcome!
