@@ -1,12 +1,12 @@
 {
     "domain": "eopt_home",
     "name": "Eopt Home",
-    "version": "1.0.0",
-    "documentation": "https://github.com/sk0zzi/Eopt_Home",
     "codeowners": [],
     "config_flow": true,
-    "iot_class": "local_push",
-    "requirements": ["sensio_lib==1.1.0"],
+    "documentation": "https://github.com/sk0zzi/Eopt_Home",
     "integration_type": "hub",
-    "issue_tracker": "https://github.com/sk0zzi/Eopt_Home/issues"
+    "iot_class": "local_push",
+    "issue_tracker": "https://github.com/sk0zzi/Eopt_Home/issues",
+    "requirements": ["sensio_lib==1.1.0"],
+    "version": "1.0.0"
 }
