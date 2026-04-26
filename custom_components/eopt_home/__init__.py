@@ -13,7 +13,6 @@ from sensio_lib import (
     SensioApi,
     SensioAuthenticationError,
     SensioConnectionError,
-    SensioEnvironment,
 )
 
 from .const import (
@@ -26,17 +25,11 @@ from .const import (
     STORAGE_KEY,
     STORAGE_VERSION,
 )
+from .helpers import get_environment
 
 _LOGGER = logging.getLogger(__name__)
 
 PLATFORMS: list[str] = ["light", "scene", "button"]
-
-
-def _get_environment(entry: ConfigEntry) -> SensioEnvironment:
-    """Return the SensioEnvironment for this config entry."""
-    if entry.data.get(CONF_USE_HA_PILOT, False):
-        return SensioEnvironment.HA_PILOT
-    return SensioEnvironment.UNITY
 
 
 async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry) -> bool:
@@ -93,7 +86,7 @@ async def _fetch_from_cloud(entry: ConfigEntry) -> dict:
     username = entry.data[CONF_USERNAME]
     password = entry.data[CONF_PASSWORD]
     project_id = entry.data[CONF_PROJECT_ID]
-    environment = _get_environment(entry)
+    environment = get_environment(entry.data.get(CONF_USE_HA_PILOT, False))
 
     try:
         async with SensioApi(username, password, environment) as api:

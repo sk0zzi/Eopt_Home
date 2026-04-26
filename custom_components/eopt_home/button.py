@@ -10,7 +10,7 @@ from homeassistant.core import HomeAssistant
 from homeassistant.exceptions import HomeAssistantError
 from homeassistant.helpers.entity_platform import AddEntitiesCallback
 from homeassistant.helpers.storage import Store
-from sensio_lib import SensioApi, SensioAuthenticationError, SensioConnectionError, SensioEnvironment
+from sensio_lib import SensioApi, SensioAuthenticationError, SensioConnectionError
 
 from .const import (
     CONF_PASSWORD,
@@ -21,6 +21,7 @@ from .const import (
     STORAGE_KEY,
     STORAGE_VERSION,
 )
+from .helpers import get_environment
 
 _LOGGER = logging.getLogger(__name__)
 
@@ -58,9 +59,7 @@ class SensioSyncButton(ButtonEntity):
         password = self._entry.data[CONF_PASSWORD]
         project_id = self._entry.data[CONF_PROJECT_ID]
         use_ha_pilot = self._entry.data.get(CONF_USE_HA_PILOT, False)
-        environment = (
-            SensioEnvironment.HA_PILOT if use_ha_pilot else SensioEnvironment.UNITY
-        )
+        environment = get_environment(use_ha_pilot)
 
         try:
             async with SensioApi(username, password, environment) as api:

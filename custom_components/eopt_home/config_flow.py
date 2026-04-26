@@ -10,7 +10,7 @@ import voluptuous as vol
 from homeassistant.config_entries import ConfigEntry, ConfigFlow, ConfigFlowResult
 from homeassistant.core import HomeAssistant
 from homeassistant.helpers.storage import Store
-from sensio_lib import SensioApi, SensioAuthenticationError, SensioConnectionError, SensioEnvironment
+from sensio_lib import SensioApi, SensioAuthenticationError, SensioConnectionError
 
 from .const import (
     CONF_HUB_IP,
@@ -23,6 +23,7 @@ from .const import (
     STORAGE_KEY,
     STORAGE_VERSION,
 )
+from .helpers import get_environment
 
 _LOGGER = logging.getLogger(__name__)
 
@@ -34,11 +35,6 @@ STEP_USER_DATA_SCHEMA = vol.Schema(
         vol.Optional(CONF_USE_HA_PILOT, default=False): bool,
     }
 )
-
-
-def _get_environment(use_ha_pilot: bool) -> SensioEnvironment:
-    """Return the SensioEnvironment based on the user's choice."""
-    return SensioEnvironment.HA_PILOT if use_ha_pilot else SensioEnvironment.UNITY
 
 
 class EoptHomeConfigFlow(ConfigFlow, domain=DOMAIN):
@@ -57,7 +53,7 @@ class EoptHomeConfigFlow(ConfigFlow, domain=DOMAIN):
             username = user_input[CONF_USERNAME]
             password = user_input[CONF_PASSWORD]
             use_ha_pilot = user_input.get(CONF_USE_HA_PILOT, False)
-            environment = _get_environment(use_ha_pilot)
+            environment = get_environment(use_ha_pilot)
 
             try:
                 async with SensioApi(username, password, environment) as api:
