@@ -10,11 +10,12 @@ from homeassistant.core import HomeAssistant
 from homeassistant.exceptions import HomeAssistantError
 from homeassistant.helpers.entity_platform import AddEntitiesCallback
 from homeassistant.helpers.storage import Store
-from sensio_lib import SensioApi, SensioAuthenticationError, SensioConnectionError
+from sensio_lib import SensioApi, SensioAuthenticationError, SensioConnectionError, SensioEnvironment
 
 from .const import (
     CONF_PASSWORD,
     CONF_PROJECT_ID,
+    CONF_USE_HA_PILOT,
     CONF_USERNAME,
     DOMAIN,
     STORAGE_KEY,
@@ -56,9 +57,13 @@ class SensioSyncButton(ButtonEntity):
         username = self._entry.data[CONF_USERNAME]
         password = self._entry.data[CONF_PASSWORD]
         project_id = self._entry.data[CONF_PROJECT_ID]
+        use_ha_pilot = self._entry.data.get(CONF_USE_HA_PILOT, False)
+        environment = (
+            SensioEnvironment.HA_PILOT if use_ha_pilot else SensioEnvironment.UNITY
+        )
 
         try:
-            async with SensioApi(username, password) as api:
+            async with SensioApi(username, password, environment) as api:
                 await api.login()
                 functions_data = await api.get_devices(project_id)
                 _LOGGER.debug("Retrieved %s devices from Sensio cloud", len(functions_data))

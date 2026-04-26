@@ -13,12 +13,14 @@ from sensio_lib import (
     SensioApi,
     SensioAuthenticationError,
     SensioConnectionError,
+    SensioEnvironment,
 )
 
 from .const import (
     CONF_HUB_IP,
     CONF_PASSWORD,
     CONF_PROJECT_ID,
+    CONF_USE_HA_PILOT,
     CONF_USERNAME,
     DOMAIN,
     STORAGE_KEY,
@@ -28,6 +30,13 @@ from .const import (
 _LOGGER = logging.getLogger(__name__)
 
 PLATFORMS: list[str] = ["light", "scene", "button"]
+
+
+def _get_environment(entry: ConfigEntry) -> SensioEnvironment:
+    """Return the SensioEnvironment for this config entry."""
+    if entry.data.get(CONF_USE_HA_PILOT, False):
+        return SensioEnvironment.HA_PILOT
+    return SensioEnvironment.UNITY
 
 
 async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry) -> bool:
@@ -84,9 +93,10 @@ async def _fetch_from_cloud(entry: ConfigEntry) -> dict:
     username = entry.data[CONF_USERNAME]
     password = entry.data[CONF_PASSWORD]
     project_id = entry.data[CONF_PROJECT_ID]
+    environment = _get_environment(entry)
 
     try:
-        async with SensioApi(username, password) as api:
+        async with SensioApi(username, password, environment) as api:
             await api.login()
             data = await api.get_devices(project_id)
             _LOGGER.debug("Retrieved %s devices from Sensio cloud", len(data))
@@ -99,3 +109,19 @@ async def _fetch_from_cloud(entry: ConfigEntry) -> dict:
         raise ConfigEntryNotReady(
             f"Cannot reach Sensio cloud: {err}"
         ) from err
+
+
+async def async_migrate_entry(hass: HomeAssistant, config_entry: ConfigEntry) -> bool:
+    """Migrate old config entries to the current version.
+
+    v1 -> v2: Add use_ha_pilot flag (defaults to False for backwards
+    compatibility — existing installs use the Unity environment).
+    """
+    if config_entry.version == 1:
+        _LOGGER.debug("Migrating config entry %s from version 1 to 2", config_entry.entry_id)
+        new_data = {**config_entry.data, CONF_USE_HA_PILOT: False}
+        hass.config_entries.async_update_entry(config_entry, data=new_data, version=2)
+        _LOGGER.info("Migration of config entry %s to version 2 successful", config_entry.entry_id)
+
+    return True
+

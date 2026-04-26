@@ -7,6 +7,7 @@ CONF_USERNAME = "username"
 CONF_PASSWORD = "password"
 CONF_PROJECT_ID = "project_id"
 CONF_PROJECT_NAME = "project_name"
+CONF_USE_HA_PILOT = "use_ha_pilot"
 
 STORAGE_VERSION = 1
 STORAGE_KEY = "eopt_home_devices"
