@@ -11,7 +11,7 @@
                     "use_ha_pilot": "Use HA-Pilot"
                 },
                 "data_description": {
-                    "use_ha_pilot": "Enable this if you are using the HA Pilot environment in EOPT Home instead of the default Unity environment."
+                    "use_ha_pilot": "Enable this if you are using the HA-Pilot environment in Eopt Home instead of the default Unity environment."
                 }
             }
         },
