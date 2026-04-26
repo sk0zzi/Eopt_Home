@@ -40,7 +40,7 @@ You will be prompted for:
 | **Username** | Your Eopt Home username |
 | **Password** | Your Eopt Home password |
 | **Hub IP** | The local IP address of your X1 controller |
-| **HA-Pilot** | If you are using HA-Pilot you must check the checkbox. Otherwise Unity is used as default. |
+| **HA-Pilot** | If you use HA-Pilot, enable this. Otherwise, Unity is used by default. |
 
 > **Tip:** The hub can be difficult to spot on your local network if you don't already know its IP. In my case the hostname started with something like `X-1...` when I looked for the unit in my routers DHCP leases. 
 
