@@ -15,11 +15,13 @@ from sensio_lib import SensioApi, SensioAuthenticationError, SensioConnectionErr
 from .const import (
     CONF_PASSWORD,
     CONF_PROJECT_ID,
+    CONF_USE_HA_PILOT,
     CONF_USERNAME,
     DOMAIN,
     STORAGE_KEY,
     STORAGE_VERSION,
 )
+from .helpers import get_environment
 
 _LOGGER = logging.getLogger(__name__)
 
@@ -56,9 +58,11 @@ class SensioSyncButton(ButtonEntity):
         username = self._entry.data[CONF_USERNAME]
         password = self._entry.data[CONF_PASSWORD]
         project_id = self._entry.data[CONF_PROJECT_ID]
+        use_ha_pilot = self._entry.data.get(CONF_USE_HA_PILOT, False)
+        environment = get_environment(use_ha_pilot)
 
         try:
-            async with SensioApi(username, password) as api:
+            async with SensioApi(username, password, environment) as api:
                 await api.login()
                 functions_data = await api.get_devices(project_id)
                 _LOGGER.debug("Retrieved %s devices from Sensio cloud", len(functions_data))

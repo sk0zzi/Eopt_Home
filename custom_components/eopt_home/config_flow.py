@@ -7,7 +7,8 @@ from typing import Any
 
 import voluptuous as vol
 
-from homeassistant.config_entries import ConfigFlow, ConfigFlowResult
+from homeassistant.config_entries import ConfigEntry, ConfigFlow, ConfigFlowResult
+from homeassistant.core import HomeAssistant
 from homeassistant.helpers.storage import Store
 from sensio_lib import SensioApi, SensioAuthenticationError, SensioConnectionError
 
@@ -16,11 +17,13 @@ from .const import (
     CONF_PASSWORD,
     CONF_PROJECT_ID,
     CONF_PROJECT_NAME,
+    CONF_USE_HA_PILOT,
     CONF_USERNAME,
     DOMAIN,
     STORAGE_KEY,
     STORAGE_VERSION,
 )
+from .helpers import get_environment
 
 _LOGGER = logging.getLogger(__name__)
 
@@ -29,6 +32,7 @@ STEP_USER_DATA_SCHEMA = vol.Schema(
         vol.Required(CONF_HUB_IP): str,
         vol.Required(CONF_USERNAME): str,
         vol.Required(CONF_PASSWORD): str,
+        vol.Optional(CONF_USE_HA_PILOT, default=False): bool,
     }
 )
 
@@ -36,7 +40,7 @@ STEP_USER_DATA_SCHEMA = vol.Schema(
 class EoptHomeConfigFlow(ConfigFlow, domain=DOMAIN):
     """Handle a config flow for Eopt Home."""
 
-    VERSION = 1
+    VERSION = 2
 
     async def async_step_user(
         self, user_input: dict[str, Any] | None = None
@@ -48,9 +52,11 @@ class EoptHomeConfigFlow(ConfigFlow, domain=DOMAIN):
             hub_ip = user_input[CONF_HUB_IP]
             username = user_input[CONF_USERNAME]
             password = user_input[CONF_PASSWORD]
+            use_ha_pilot = user_input.get(CONF_USE_HA_PILOT, False)
+            environment = get_environment(use_ha_pilot)
 
             try:
-                async with SensioApi(username, password) as api:
+                async with SensioApi(username, password, environment) as api:
                     projects = await api.login()
 
                     if not projects:
@@ -80,6 +86,7 @@ class EoptHomeConfigFlow(ConfigFlow, domain=DOMAIN):
                                 CONF_PASSWORD: password,
                                 CONF_PROJECT_ID: project_id,
                                 CONF_PROJECT_NAME: project_name,
+                                CONF_USE_HA_PILOT: use_ha_pilot,
                             },
                         )
             except SensioAuthenticationError:
@@ -95,3 +102,4 @@ class EoptHomeConfigFlow(ConfigFlow, domain=DOMAIN):
             data_schema=STEP_USER_DATA_SCHEMA,
             errors=errors,
         )
+
