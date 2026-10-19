@@ -16,6 +16,7 @@ from homeassistant.helpers.entity_platform import AddEntitiesCallback
 from sensio_lib import Dimmer, Hub, Light
 
 from .const import DOMAIN
+from .helpers import device_info
 
 _LOGGER = logging.getLogger(__name__)
 
@@ -63,12 +64,7 @@ class SensioLightEntity(LightEntity):
         self._entity_map = entity_map
         self._attr_unique_id = f"{DOMAIN}_{light.unique_id}"
         self._attr_name = light.name
-        self._attr_device_info = {
-            "identifiers": {(DOMAIN, entry.entry_id)},
-            "name": f"Eopt Home ({entry.data.get('project_name', 'Hub')})",
-            "manufacturer": "Eopt Home",
-            "model": "Sensio Controller",
-        }
+        self._attr_device_info = device_info(entry, light.zone_id, light.zone_name)
 
     async def async_added_to_hass(self) -> None:
         """Register this entity for push state updates."""
@@ -105,12 +101,7 @@ class SensioDimmerEntity(LightEntity):
         self._entity_map = entity_map
         self._attr_unique_id = f"{DOMAIN}_{dimmer.unique_id}"
         self._attr_name = dimmer.name
-        self._attr_device_info = {
-            "identifiers": {(DOMAIN, entry.entry_id)},
-            "name": f"Eopt Home ({entry.data.get('project_name', 'Hub')})",
-            "manufacturer": "Eopt Home",
-            "model": "Sensio Controller",
-        }
+        self._attr_device_info = device_info(entry, dimmer.zone_id, dimmer.zone_name)
 
     async def async_added_to_hass(self) -> None:
         """Register this entity for push state updates."""
