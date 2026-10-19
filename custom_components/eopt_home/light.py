@@ -22,10 +22,11 @@ async def async_setup_entry(
     async_add_entities: AddEntitiesCallback,
 ) -> None:
     """Set up Eopt Home lights from a config entry."""
-    hub: Hub = hass.data[DOMAIN][entry.entry_id]
+    data = hass.data[DOMAIN][entry.entry_id]
+    hub: Hub = data["hub"]
     lights = hub.get_lights()
 
-    entities = [SensioLightEntity(light, entry) for light in lights]
+    entities = [SensioLightEntity(light, entry, data["entity_map"]) for light in lights]
     async_add_entities(entities)
     _LOGGER.debug("Added %d Eopt Home light entities", len(entities))
 
@@ -37,9 +38,10 @@ class SensioLightEntity(LightEntity):
     _attr_supported_color_modes = {ColorMode.ONOFF}
     _attr_color_mode = ColorMode.ONOFF
 
-    def __init__(self, light: Light, entry: ConfigEntry) -> None:
+    def __init__(self, light: Light, entry: ConfigEntry, entity_map: dict) -> None:
         """Initialize the light entity."""
         self._light = light
+        self._entity_map = entity_map
         self._attr_unique_id = f"{DOMAIN}_{light.unique_id}"
         self._attr_name = light.name
         self._attr_device_info = {
@@ -49,6 +51,14 @@ class SensioLightEntity(LightEntity):
             "model": "Sensio Controller",
         }
 
+    async def async_added_to_hass(self) -> None:
+        """Register this entity for push state updates."""
+        self._entity_map[self._light] = self
+
+    async def async_will_remove_from_hass(self) -> None:
+        """Unregister from push state updates."""
+        self._entity_map.pop(self._light, None)
+
     @property
     def is_on(self) -> bool | None:
         """Return True if the light is on."""
@@ -57,9 +67,7 @@ class SensioLightEntity(LightEntity):
     async def async_turn_on(self, **kwargs: Any) -> None:
         """Turn the light on."""
         await self._light.turn_on()
-        self.async_write_ha_state()
 
     async def async_turn_off(self, **kwargs: Any) -> None:
         """Turn the light off."""
         await self._light.turn_off()
-        self.async_write_ha_state()

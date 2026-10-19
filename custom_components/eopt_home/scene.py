@@ -22,7 +22,7 @@ async def async_setup_entry(
     async_add_entities: AddEntitiesCallback,
 ) -> None:
     """Set up Eopt Home scenes from a config entry."""
-    hub: Hub = hass.data[DOMAIN][entry.entry_id]
+    hub: Hub = hass.data[DOMAIN][entry.entry_id]["hub"]
     scenes = hub.get_scenes()
 
     entities = [SensioSceneEntity(scene, entry) for scene in scenes]

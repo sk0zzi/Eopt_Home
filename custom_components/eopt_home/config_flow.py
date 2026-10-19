@@ -10,7 +10,7 @@ import voluptuous as vol
 from homeassistant.config_entries import ConfigEntry, ConfigFlow, ConfigFlowResult
 from homeassistant.core import HomeAssistant
 from homeassistant.helpers.storage import Store
-from sensio_lib import SensioApi, SensioAuthenticationError, SensioConnectionError
+from sensio_lib import Hub, SensioApi, SensioAuthenticationError, SensioConnectionError
 
 from .const import (
     CONF_HUB_IP,
@@ -66,6 +66,14 @@ class EoptHomeConfigFlow(ConfigFlow, domain=DOMAIN):
                         project_name, project_id = next(iter(projects.items()))
                         functions_data = await api.get_devices(project_id)
 
+                if not errors:
+                    # Validate that the IP points to a real Sensio hub
+                    hub = Hub(hub_ip)
+                    try:
+                        await hub.validate_connection()
+                    except SensioConnectionError:
+                        errors["base"] = "invalid_hub"
+                    else:
                         unique_id = f"{hub_ip}_{project_id}"
                         await self.async_set_unique_id(unique_id)
                         self._abort_if_unique_id_configured()
