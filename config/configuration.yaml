@@ -1,0 +1,23 @@
+# Minimal HA config for custom component development.
+# No default_config, to keep startup fast and dependencies small.
+# Integrations that HA itself needs (frontend etc.) are installed automatically
+# on first start by scripts/develop.
+
+# https://www.home-assistant.io/integrations/homeassistant/
+homeassistant:
+  name: Dev Home
+  unit_system: metric
+  time_zone: Europe/Oslo
+  # Enables extra checks, e.g. warnings when the integration blocks the event loop.
+  debug: true
+
+# https://www.home-assistant.io/integrations/logger/
+logger:
+  default: info
+  logs:
+    custom_components.eopt_home: debug
+
+# Enable the frontend so we can use the UI
+http:
+frontend:
+config:

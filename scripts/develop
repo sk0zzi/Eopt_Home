@@ -1,0 +1,50 @@
+#!/usr/bin/env bash
+# Starts Home Assistant for local custom component development.
+# Expects scripts/setup to have been run (done automatically on container creation).
+
+set -euo pipefail
+
+cd "$(dirname "$0")/.."
+
+SENSIO_LIB_DIR="/workspaces/sensio_lib"
+
+if [[ ! -d "${SENSIO_LIB_DIR}" ]]; then
+    echo "ERROR: ${SENSIO_LIB_DIR} not found. See scripts/setup."
+    exit 1
+fi
+
+# Make sure the editable install points at the local checkout. Code changes
+# are picked up automatically; this only matters if the library's own
+# dependencies changed or the install was overwritten.
+if ! python3 -c "import sensio_lib, sys; sys.exit(0 if sensio_lib.__file__.startswith('${SENSIO_LIB_DIR}') else 1)" 2>/dev/null; then
+    echo "==> (Re)installing local sensio_lib (editable) from ${SENSIO_LIB_DIR}..."
+    python3 -m pip install --quiet --editable "${SENSIO_LIB_DIR}"
+fi
+
+# The minimal configuration.yaml is committed to the repository.
+if [[ ! -f "${PWD}/config/configuration.yaml" ]]; then
+    echo "ERROR: config/configuration.yaml is missing."
+    echo "       Restore it with: git checkout -- config/configuration.yaml"
+    exit 1
+fi
+
+# Ensure HA can find the custom_components directory in the project root.
+export PYTHONPATH="${PYTHONPATH:-}:${PWD}"
+
+# Make HA install the requirements of the integrations it loads (frontend,
+# numpy, ...) into the same site-packages it runs from. Without this, HA
+# (when not in a venv) installs them into ~/.local, which is not on sys.path
+# if it did not exist when Python started. That caused the
+# "No module named 'hass_frontend' / 'numpy' / ..." errors on the first start
+# after every container rebuild.
+UV_PYTHON="$(python3 -c 'import sys; print(sys.executable)')"
+export UV_PYTHON
+
+echo "==> Starting Home Assistant (config: ${PWD}/config)..."
+echo "    Press Ctrl+C to stop."
+echo ""
+
+# Let HA install the requirements of the integrations it loads (frontend etc.),
+# but never touch sensio_lib: otherwise HA would replace the local editable
+# install with the version pinned in manifest.json from PyPI.
+exec hass --config "${PWD}/config" --debug --skip-pip-packages sensio_lib

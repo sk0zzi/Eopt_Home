@@ -1,0 +1,34 @@
+#!/usr/bin/env bash
+# Setup script: installs all Python dependencies into the container's Python.
+# Run once after the container is created (triggered by postCreateCommand).
+#
+# No virtualenv is used: the devcontainer itself is the isolated environment,
+# and Home Assistant must run on the same interpreter (Python 3.14) that the
+# dependencies are installed into.
+
+set -euo pipefail
+
+cd "$(dirname "$0")/.."
+
+SENSIO_LIB_DIR="/workspaces/sensio_lib"
+
+echo "==> Upgrading pip..."
+python3 -m pip install --upgrade pip
+
+echo "==> Installing development dependencies (incl. Home Assistant)..."
+python3 -m pip install --requirement requirements_dev.txt
+
+# The local sensio_lib is mandatory: this container is used to test library
+# changes together with the integration before publishing.
+if [[ ! -d "${SENSIO_LIB_DIR}" ]]; then
+    echo "ERROR: ${SENSIO_LIB_DIR} not found."
+    echo "       Clone sensio_lib next to this repository (../sensio_lib);"
+    echo "       the devcontainer mounts the parent folder at /workspaces."
+    exit 1
+fi
+
+echo "==> Installing local sensio_lib (editable) from ${SENSIO_LIB_DIR}..."
+python3 -m pip install --editable "${SENSIO_LIB_DIR}"
+
+echo ""
+echo "==> Setup complete. Start Home Assistant with: scripts/develop"
