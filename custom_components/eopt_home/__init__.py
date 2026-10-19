@@ -63,7 +63,21 @@ async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry) -> bool:
         ) from err
 
     hass.data.setdefault(DOMAIN, {})
-    hass.data[DOMAIN][entry.entry_id] = hub
+    hass.data[DOMAIN][entry.entry_id] = {
+        "hub": hub,
+        "entity_map": {},  # Light object -> SensioLightEntity
+    }
+
+    def _on_state_change(device):
+        """Forward library state changes to HA entities."""
+        entry_data = hass.data.get(DOMAIN, {}).get(entry.entry_id)
+        if entry_data is None:
+            return
+        entity = entry_data["entity_map"].get(device)
+        if entity is not None:
+            entity.schedule_update_ha_state()
+
+    hub.set_state_callback(_on_state_change)
 
     await hass.config_entries.async_forward_entry_setups(entry, PLATFORMS)
 
@@ -75,7 +89,8 @@ async def async_unload_entry(hass: HomeAssistant, entry: ConfigEntry) -> bool:
     unload_ok = await hass.config_entries.async_unload_platforms(entry, PLATFORMS)
 
     if unload_ok:
-        hub: Hub = hass.data[DOMAIN].pop(entry.entry_id)
+        data = hass.data[DOMAIN].pop(entry.entry_id)
+        hub: Hub = data["hub"]
         await hub.close()
 
     return unload_ok
