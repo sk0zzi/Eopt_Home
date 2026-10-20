@@ -15,8 +15,7 @@ A [Home Assistant](https://www.home-assistant.io/) custom component for controll
 
 ### Limitations
 
-- Commands are sent to the X1 controller but no state is read back. If lights are toggled with physical switches the status in Home Assistant will be out of sync.
-- Only lights and scenes are supported.
+- Only lights, dimmers and scenes are supported.
 
 ## Installation
 
