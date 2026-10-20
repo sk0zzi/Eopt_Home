@@ -12,6 +12,7 @@ from homeassistant.helpers.entity_platform import AddEntitiesCallback
 from sensio_lib import Hub, Scene
 
 from .const import DOMAIN
+from .helpers import device_info
 
 _LOGGER = logging.getLogger(__name__)
 
@@ -22,7 +23,7 @@ async def async_setup_entry(
     async_add_entities: AddEntitiesCallback,
 ) -> None:
     """Set up Eopt Home scenes from a config entry."""
-    hub: Hub = hass.data[DOMAIN][entry.entry_id]
+    hub: Hub = hass.data[DOMAIN][entry.entry_id]["hub"]
     scenes = hub.get_scenes()
 
     entities = [SensioSceneEntity(scene, entry) for scene in scenes]
@@ -40,12 +41,7 @@ class SensioSceneEntity(SceneEntity):
         self._scene = scene
         self._attr_unique_id = f"{DOMAIN}_{scene.unique_id}"
         self._attr_name = scene.name
-        self._attr_device_info = {
-            "identifiers": {(DOMAIN, entry.entry_id)},
-            "name": f"Eopt Home ({entry.data.get('project_name', 'Hub')})",
-            "manufacturer": "Eopt Home",
-            "model": "Sensio Controller",
-        }
+        self._attr_device_info = device_info(entry)
 
     async def async_activate(self, **kwargs: Any) -> None:
         """Activate the scene."""

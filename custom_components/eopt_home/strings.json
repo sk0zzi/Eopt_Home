@@ -17,6 +17,7 @@
         },
         "error": {
             "cannot_connect": "Failed to connect to the hub",
+            "invalid_hub": "Could not connect to a valid Eopt Home hub at this IP address",
             "invalid_auth": "Invalid username or password",
             "unknown": "An unexpected error occurred"
         },

@@ -21,7 +21,7 @@ from .const import (
     STORAGE_KEY,
     STORAGE_VERSION,
 )
-from .helpers import get_environment
+from .helpers import device_info, get_environment
 
 _LOGGER = logging.getLogger(__name__)
 
@@ -46,12 +46,7 @@ class SensioSyncButton(ButtonEntity):
         """Initialize the sync button."""
         self._entry = entry
         self._attr_unique_id = f"{DOMAIN}_{entry.unique_id}_sync"
-        self._attr_device_info = {
-            "identifiers": {(DOMAIN, entry.entry_id)},
-            "name": f"Eopt Home ({entry.data.get('project_name', 'Hub')})",
-            "manufacturer": "Eopt Home",
-            "model": "Sensio Controller",
-        }
+        self._attr_device_info = device_info(entry)
 
     async def async_press(self) -> None:
         """Fetch fresh device data from cloud and reload the integration."""

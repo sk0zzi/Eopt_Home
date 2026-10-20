@@ -1,0 +1,8 @@
+# Development dependencies for the devcontainer.
+# sensio_lib is intentionally NOT listed: scripts/setup installs the local
+# checkout from /workspaces/sensio_lib in editable mode.
+# Keep homeassistant pinned so every rebuild gets the same version.
+colorlog==6.10.1
+homeassistant==2026.10.1
+pip>=21.3.1
+ruff==0.15.7

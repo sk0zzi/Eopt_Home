@@ -1,12 +1,17 @@
 # Eopt Home
 
+![AI: Assisted](https://img.shields.io/badge/AI-Assisted-blue)
+
 A [Home Assistant](https://www.home-assistant.io/) custom component for controlling the Sensio / Eopt Home X1 xComfort controller via [sensio_lib](https://pypi.org/project/sensio-lib/).
 
 ## Features
 
-- **Lights** — on/off
-- **Scenes** — activate scenes configured in your xComfort project
-- **Sync button** — re-fetch your project data from Eopt Home at any time
+- **Lights & Dimmers** — On/off control for relay lights and `0–100%` brightness control for dimmers (automatically restoring the previous brightness level when turned back on)
+- **Live state feedback** — Listens to the X1 controller's real-time event stream, so lights or dimmers changed via physical wall switches update in Home Assistant immediately
+- **Zone (Room) grouping** — Creates a Home Assistant device for each Sensio zone so you can assign a whole room of lights to your chosen Home Assistant Area in one place
+- **Automatic reconnect** — Automatically reconnects with exponential backoff if the network connection to the X1 controller drops
+- **Scenes** — Activate house-level scenes configured in your xComfort project
+- **Sync button** — Re-fetch your project data from the Eopt Home cloud at any time
 
 ### Limitations
 

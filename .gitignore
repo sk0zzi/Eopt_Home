@@ -1,5 +1,6 @@
-config/
-scripts/
+config/*
+!config/configuration.yaml
 __pycache__/
 *.pyc
 .venv/
+.ruff_cache/

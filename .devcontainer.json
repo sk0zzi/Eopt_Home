@@ -1,6 +1,10 @@
 {
     "name": "eOpt Home Development",
     "image": "mcr.microsoft.com/devcontainers/base:debian",
+    // Mount the parent folder so the sibling sensio_lib checkout is available
+    // at /workspaces/sensio_lib and can be installed in editable mode.
+    "workspaceMount": "source=${localWorkspaceFolder}/..,target=/workspaces,type=bind",
+    "workspaceFolder": "/workspaces/${localWorkspaceFolderBasename}",
     "postCreateCommand": "scripts/setup",
     "forwardPorts": [8123],
     "portsAttributes": {
@@ -21,7 +25,10 @@
                 "files.eol": "\n",
                 "editor.tabSize": 4,
                 "editor.formatOnSave": true,
+                "files.trimTrailingWhitespace": true,
+                "python.defaultInterpreterPath": "/usr/local/python/current/bin/python",
                 "python.analysis.typeCheckingMode": "basic",
+                "python.analysis.extraPaths": ["/workspaces/sensio_lib"],
                 "[python]": {
                     "editor.defaultFormatter": "charliermarsh.ruff"
                 }
@@ -36,6 +43,5 @@
         "ghcr.io/devcontainers-extra/features/apt-packages:1": {
             "packages": "ffmpeg,libturbojpeg0,libpcap-dev"
         }
-    },
-    "mounts": []
+    }
 }
