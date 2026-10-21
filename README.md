@@ -6,16 +6,17 @@ A [Home Assistant](https://www.home-assistant.io/) custom component for controll
 
 ## Features
 
-- **Lights & Dimmers** — On/off control for relay lights and `0–100%` brightness control for dimmers (automatically restoring the previous brightness level when turned back on)
-- **Live state feedback** — Listens to the X1 controller's real-time event stream, so lights or dimmers changed via physical wall switches update in Home Assistant immediately
-- **Zone (Room) grouping** — Creates a Home Assistant device for each Sensio zone so you can assign a whole room of lights to your chosen Home Assistant Area in one place
-- **Automatic reconnect** — Automatically reconnects with exponential backoff if the network connection to the X1 controller drops
-- **Scenes** — Activate house-level scenes configured in your xComfort project
-- **Sync button** — Re-fetch your project data from the Eopt Home cloud at any time
+- **Lights & Dimmers** - On/off control for relay lights and `0–100%` brightness control for dimmers (automatically restoring the previous brightness level when turned back on)
+- **Thermostats** - Set and read temperatures. Reads temperature from thermostats on start up. 
+- **Live state feedback** - Listens to the X1 controller's real-time event stream, so lights, dimmers or thermostats changed via physical wall switches update in Home Assistant immediately
+- **Zone (Room) grouping** - Creates a Home Assistant device for each Sensio zone so you can assign a whole room of lights to your chosen Home Assistant Area in one place
+- **Automatic reconnect** - Automatically reconnects with exponential backoff if the network connection to the X1 controller drops
+- **Scenes** - Activate house-level scenes configured in your xComfort project
+- **Sync button** - Re-fetch your project data from the Eopt Home cloud at any time
 
 ### Limitations
 
-- Only lights, dimmers and scenes are supported.
+- Only lights, dimmers, thermostats and scenes are supported.
 
 ## Installation
 
