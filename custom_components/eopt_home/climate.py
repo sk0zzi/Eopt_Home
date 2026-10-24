@@ -13,7 +13,8 @@ from homeassistant.components.climate import (
 )
 from homeassistant.config_entries import ConfigEntry
 from homeassistant.const import ATTR_TEMPERATURE, UnitOfTemperature
-from homeassistant.core import HomeAssistant
+from homeassistant.core import HomeAssistant, callback
+from homeassistant.helpers import issue_registry as ir
 from homeassistant.helpers.entity_platform import AddEntitiesCallback
 from sensio_lib import Hub, Thermostat
 
@@ -72,18 +73,51 @@ class SensioThermostatEntity(ClimateEntity):
         self._attr_device_info = device_info(
             entry, thermostat.zone_id, thermostat.zone_name
         )
+        self._last_error_mode: bool | None = None
 
     async def async_added_to_hass(self) -> None:
         """Register this entity for push state updates."""
         self._entity_map[self._thermostat] = self
+        self._update_repair_issue()
 
     async def async_will_remove_from_hass(self) -> None:
         """Unregister from push state updates."""
         self._entity_map.pop(self._thermostat, None)
 
+    @callback
+    def _async_write_ha_state(self) -> None:
+        """Write state to Home Assistant and sync repair issue state."""
+        self._update_repair_issue()
+        super()._async_write_ha_state()
+
+    @callback
+    def _update_repair_issue(self) -> None:
+        """Create or clear a repair issue when thermostat error mode changes."""
+        in_error = self._thermostat.in_error_mode
+        if in_error == self._last_error_mode:
+            return
+        self._last_error_mode = in_error
+        issue_id = f"thermostat_error_mode_{self._thermostat.unique_id}"
+        if in_error:
+            ir.async_create_issue(
+                self.hass,
+                DOMAIN,
+                issue_id,
+                is_fixable=False,
+                severity=ir.IssueSeverity.WARNING,
+                translation_key="thermostat_error_mode",
+                translation_placeholders={
+                    "name": self._thermostat.zone_name or self._thermostat.name,
+                },
+            )
+        else:
+            ir.async_delete_issue(self.hass, DOMAIN, issue_id)
+
     @property
     def current_temperature(self) -> float | None:
-        """Return the current temperature."""
+        """Return the current temperature (None when thermostat is in error mode)."""
+        if self._thermostat.in_error_mode:
+            return None
         return self._thermostat.current_temperature
 
     @property

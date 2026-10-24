@@ -13,6 +13,7 @@ A [Home Assistant](https://www.home-assistant.io/) custom component for controll
 - **Automatic reconnect** - Automatically reconnects with exponential backoff if the network connection to the X1 controller drops
 - **Scenes** - Activate house-level scenes configured in your xComfort project
 - **Sync button** - Re-fetch your project data from the Eopt Home cloud at any time
+- **Error reporting** - Integration will report issues back to home assistant if they are reported.
 
 ### Limitations
 
