@@ -24,5 +24,11 @@
         "abort": {
             "already_configured": "This hub is already configured"
         }
+    },
+    "issues": {
+        "thermostat_error_mode": {
+            "title": "{name} thermostat is in security mode",
+            "description": "The thermostat in **{name}** is in security/error mode (`ErrorMode`), likely because the room temperature sensor lost connection or ran out of battery. While in security mode, the floor heating runs on a fallback safety timer and no live room temperature is available."
+        }
     }
 }
