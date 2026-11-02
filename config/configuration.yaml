@@ -21,3 +21,4 @@ logger:
 http:
 frontend:
 config:
+energy:
