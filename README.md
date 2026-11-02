@@ -14,6 +14,7 @@ A [Home Assistant](https://www.home-assistant.io/) custom component for controll
 - **Scenes** - Activate house-level scenes configured in your xComfort project
 - **Sync button** - Re-fetch your project data from the Eopt Home cloud at any time
 - **Error reporting** - Integration will report issues back to home assistant if they are reported.
+- **Thermostat power & energy reporting** - Optional Power (`W`) and cumulative Energy (`kWh`) sensors per thermostat for the Home Assistant Energy Dashboard (can be toggled on or off in integration settings).
 
 ### Limitations
 

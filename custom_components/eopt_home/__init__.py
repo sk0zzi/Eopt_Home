@@ -30,7 +30,7 @@ from .helpers import device_info, get_environment
 
 _LOGGER = logging.getLogger(__name__)
 
-PLATFORMS: list[str] = ["light", "scene", "button", "climate"]
+PLATFORMS: list[str] = ["light", "scene", "button", "climate", "sensor"]
 
 
 async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry) -> bool:
@@ -66,7 +66,8 @@ async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry) -> bool:
     hass.data.setdefault(DOMAIN, {})
     hass.data[DOMAIN][entry.entry_id] = {
         "hub": hub,
-        "entity_map": {},  # Light object -> SensioLightEntity
+        "entity_map": {},  # Device -> primary Entity
+        "sensor_entities": {},  # Thermostat -> list of sensor entities
     }
 
     def _on_state_change(device):
@@ -77,6 +78,8 @@ async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry) -> bool:
         entity = entry_data["entity_map"].get(device)
         if entity is not None:
             entity.schedule_update_ha_state()
+        for sensor_entity in entry_data["sensor_entities"].get(device, ()):
+            sensor_entity.schedule_update_ha_state()
 
     hub.set_state_callback(_on_state_change)
 
@@ -87,8 +90,14 @@ async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry) -> bool:
     )
 
     await hass.config_entries.async_forward_entry_setups(entry, PLATFORMS)
+    entry.async_on_unload(entry.add_update_listener(_async_update_listener))
 
     return True
+
+
+async def _async_update_listener(hass: HomeAssistant, entry: ConfigEntry) -> None:
+    """Reload config entry when options are updated."""
+    await hass.config_entries.async_reload(entry.entry_id)
 
 
 async def async_unload_entry(hass: HomeAssistant, entry: ConfigEntry) -> bool:

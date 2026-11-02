@@ -116,8 +116,6 @@ class SensioThermostatEntity(ClimateEntity):
     @property
     def current_temperature(self) -> float | None:
         """Return the current temperature (None when thermostat is in error mode)."""
-        if self._thermostat.in_error_mode:
-            return None
         return self._thermostat.current_temperature
 
     @property

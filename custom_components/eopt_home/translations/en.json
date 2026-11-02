@@ -8,10 +8,12 @@
                     "hub_ip": "Hub IP Address",
                     "username": "Username",
                     "password": "Password",
-                    "use_ha_pilot": "Use HA-Pilot"
+                    "use_ha_pilot": "Use HA-Pilot",
+                    "enable_power_reporting": "Enable thermostat power & energy reporting"
                 },
                 "data_description": {
-                    "use_ha_pilot": "Enable this if you are using the HA-Pilot environment in Eopt Home instead of the default Unity environment."
+                    "use_ha_pilot": "Enable this if you are using the HA-Pilot environment in Eopt Home instead of the default Unity environment.",
+                    "enable_power_reporting": "Create Power (W) and cumulative Energy (kWh) sensors for heated floor thermostats for use in the Home Assistant Energy Dashboard."
                 }
             }
         },
@@ -23,6 +25,19 @@
         },
         "abort": {
             "already_configured": "This hub is already configured"
+        }
+    },
+    "options": {
+        "step": {
+            "init": {
+                "title": "Eopt Home Options",
+                "data": {
+                    "enable_power_reporting": "Enable thermostat power & energy reporting"
+                },
+                "data_description": {
+                    "enable_power_reporting": "Create Power (W) and cumulative Energy (kWh) sensors for heated floor thermostats for use in the Home Assistant Energy Dashboard."
+                }
+            }
         }
     },
     "issues": {

@@ -7,12 +7,18 @@ from typing import Any
 
 import voluptuous as vol
 
-from homeassistant.config_entries import ConfigEntry, ConfigFlow, ConfigFlowResult
-from homeassistant.core import HomeAssistant
+from homeassistant.config_entries import (
+    ConfigEntry,
+    ConfigFlow,
+    ConfigFlowResult,
+    OptionsFlow,
+)
+from homeassistant.core import HomeAssistant, callback
 from homeassistant.helpers.storage import Store
 from sensio_lib import Hub, SensioApi, SensioAuthenticationError, SensioConnectionError
 
 from .const import (
+    CONF_ENABLE_POWER_REPORTING,
     CONF_HUB_IP,
     CONF_PASSWORD,
     CONF_PROJECT_ID,
@@ -33,6 +39,7 @@ STEP_USER_DATA_SCHEMA = vol.Schema(
         vol.Required(CONF_USERNAME): str,
         vol.Required(CONF_PASSWORD): str,
         vol.Optional(CONF_USE_HA_PILOT, default=False): bool,
+        vol.Optional(CONF_ENABLE_POWER_REPORTING, default=True): bool,
     }
 )
 
@@ -41,6 +48,12 @@ class EoptHomeConfigFlow(ConfigFlow, domain=DOMAIN):
     """Handle a config flow for Eopt Home."""
 
     VERSION = 2
+
+    @staticmethod
+    @callback
+    def async_get_options_flow(config_entry: ConfigEntry) -> OptionsFlow:
+        """Get the options flow for this handler."""
+        return EoptHomeOptionsFlow()
 
     async def async_step_user(
         self, user_input: dict[str, Any] | None = None
@@ -53,6 +66,7 @@ class EoptHomeConfigFlow(ConfigFlow, domain=DOMAIN):
             username = user_input[CONF_USERNAME]
             password = user_input[CONF_PASSWORD]
             use_ha_pilot = user_input.get(CONF_USE_HA_PILOT, False)
+            enable_power_reporting = user_input.get(CONF_ENABLE_POWER_REPORTING, True)
             environment = get_environment(use_ha_pilot)
 
             try:
@@ -95,6 +109,10 @@ class EoptHomeConfigFlow(ConfigFlow, domain=DOMAIN):
                                 CONF_PROJECT_ID: project_id,
                                 CONF_PROJECT_NAME: project_name,
                                 CONF_USE_HA_PILOT: use_ha_pilot,
+                                CONF_ENABLE_POWER_REPORTING: enable_power_reporting,
+                            },
+                            options={
+                                CONF_ENABLE_POWER_REPORTING: enable_power_reporting,
                             },
                         )
             except SensioAuthenticationError:
@@ -109,5 +127,33 @@ class EoptHomeConfigFlow(ConfigFlow, domain=DOMAIN):
             step_id="user",
             data_schema=STEP_USER_DATA_SCHEMA,
             errors=errors,
+        )
+
+
+class EoptHomeOptionsFlow(OptionsFlow):
+    """Handle options flow for Eopt Home."""
+
+    async def async_step_init(
+        self, user_input: dict[str, Any] | None = None
+    ) -> ConfigFlowResult:
+        """Manage Eopt Home options."""
+        if user_input is not None:
+            return self.async_create_entry(title="", data=user_input)
+
+        current_enable_power = self.config_entry.options.get(
+            CONF_ENABLE_POWER_REPORTING,
+            self.config_entry.data.get(CONF_ENABLE_POWER_REPORTING, True),
+        )
+
+        return self.async_show_form(
+            step_id="init",
+            data_schema=vol.Schema(
+                {
+                    vol.Optional(
+                        CONF_ENABLE_POWER_REPORTING,
+                        default=current_enable_power,
+                    ): bool,
+                }
+            ),
         )
 
