@@ -1,6 +1,10 @@
 # Eopt Home
 
+[![Latest Release](https://img.shields.io/github/v/release/sk0zzi/Eopt_Home?include_prereleases&color=green&label=Release)](https://github.com/sk0zzi/Eopt_Home/releases)
+
+[![HACS Custom](https://img.shields.io/badge/HACS-Custom-orange.svg)](https://github.com/custom-components/hacs)
 ![AI: Assisted](https://img.shields.io/badge/AI-Assisted-blue)
+
 
 A [Home Assistant](https://www.home-assistant.io/) custom component for controlling the Sensio / Eopt Home X1 xComfort controller via [sensio_lib](https://pypi.org/project/sensio-lib/).
 
