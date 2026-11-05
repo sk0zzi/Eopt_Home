@@ -2,7 +2,6 @@
 
 [![Open your Home Assistant instance and open a repository in the Marketplace.](https://my.home-assistant.io/badges/marketplace_repository.svg)](https://my.home-assistant.io/redirect/marketplace_repository/?owner=sk0zzi&repository=https%3A%2F%2Fgithub.com%2Fsk0zzi%2FEopt_Home&category=Integration)
 
-[![Latest Release](https://img.shields.io/github/v/release/sk0zzi/Eopt_Home?include_prereleases&color=green&label=Release)](https://github.com/sk0zzi/Eopt_Home/releases)
 [![HACS Custom](https://img.shields.io/badge/HACS-Custom-orange.svg)](https://github.com/custom-components/hacs)
 ![AI: Assisted](https://img.shields.io/badge/AI-Assisted-blue)
 
