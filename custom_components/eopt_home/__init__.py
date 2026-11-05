@@ -14,6 +14,7 @@ from sensio_lib import (
     SensioApi,
     SensioAuthenticationError,
     SensioConnectionError,
+    SensioException,
 )
 
 from .const import (
@@ -90,6 +91,12 @@ async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry) -> bool:
     )
 
     await hass.config_entries.async_forward_entry_setups(entry, PLATFORMS)
+
+    try:
+        await hub.query_state()
+    except SensioException as err:
+        _LOGGER.warning("Failed to query initial device states from hub: %s", err)
+
     entry.async_on_unload(entry.add_update_listener(_async_update_listener))
 
     return True
