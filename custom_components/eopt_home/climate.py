@@ -119,6 +119,11 @@ class SensioThermostatEntity(ClimateEntity):
         return self._thermostat.current_temperature
 
     @property
+    def current_humidity(self) -> float | None:
+        """Return the current relative humidity (%), if supported by the thermostat."""
+        return self._thermostat.humidity
+
+    @property
     def target_temperature(self) -> float | None:
         """Return the temperature we try to reach."""
         return self._thermostat.target_temperature

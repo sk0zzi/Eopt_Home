@@ -1,4 +1,4 @@
-"""Sensor platform for Eopt Home integration (thermostat power & energy)."""
+"""Sensor platform for Eopt Home integration (thermostat power, energy & humidity)."""
 
 from __future__ import annotations
 
@@ -13,7 +13,7 @@ from homeassistant.components.sensor import (
     SensorStateClass,
 )
 from homeassistant.config_entries import ConfigEntry
-from homeassistant.const import UnitOfEnergy, UnitOfPower
+from homeassistant.const import PERCENTAGE, UnitOfEnergy, UnitOfPower
 from homeassistant.core import HomeAssistant, callback
 from homeassistant.helpers import entity_registry as er
 from homeassistant.helpers.entity_platform import AddEntitiesCallback
@@ -40,7 +40,7 @@ async def async_setup_entry(
     entry: ConfigEntry,
     async_add_entities: AddEntitiesCallback,
 ) -> None:
-    """Set up Eopt Home power and energy sensors from a config entry."""
+    """Set up Eopt Home power, energy, and humidity sensors from a config entry."""
     enable_power_reporting = entry.options.get(
         CONF_ENABLE_POWER_REPORTING,
         entry.data.get(CONF_ENABLE_POWER_REPORTING, True),
@@ -49,10 +49,11 @@ async def async_setup_entry(
     if not enable_power_reporting:
         ent_reg = er.async_get(hass)
         for reg_entry in er.async_entries_for_config_entry(ent_reg, entry.entry_id):
-            if reg_entry.domain == "sensor":
+            if reg_entry.domain == "sensor" and reg_entry.unique_id.endswith(
+                ("_power", "_energy")
+            ):
                 ent_reg.async_remove(reg_entry.entity_id)
         _LOGGER.debug("Thermostat power/energy reporting is disabled in options")
-        return
 
     data = hass.data[DOMAIN][entry.entry_id]
     hub: Hub = data["hub"]
@@ -60,14 +61,20 @@ async def async_setup_entry(
 
     entities: list[SensorEntity] = []
     for thermostat in hub.get_thermostats():
-        entities.append(
-            SensioThermostatPowerSensor(thermostat, entry, sensor_entities)
-        )
-        entities.append(
-            SensioThermostatEnergySensor(thermostat, entry, sensor_entities)
-        )
+        if enable_power_reporting:
+            entities.append(
+                SensioThermostatPowerSensor(thermostat, entry, sensor_entities)
+            )
+            entities.append(
+                SensioThermostatEnergySensor(thermostat, entry, sensor_entities)
+            )
+        if thermostat.has_humidity:
+            entities.append(
+                SensioThermostatHumiditySensor(thermostat, entry, sensor_entities)
+            )
 
-    async_add_entities(entities)
+    if entities:
+        async_add_entities(entities)
     _LOGGER.debug("Added %d Eopt Home sensor entities", len(entities))
 
 
@@ -196,3 +203,45 @@ class SensioThermostatEnergySensor(RestoreSensor):
     def native_value(self) -> float:
         """Return the cumulative heating energy in kWh."""
         return round(self._total_kwh, 4)
+
+
+class SensioThermostatHumiditySensor(SensorEntity):
+    """Relative humidity sensor (%) for a Sensio thermostat with humidity support."""
+
+    _attr_has_entity_name = True
+    _attr_device_class = SensorDeviceClass.HUMIDITY
+    _attr_native_unit_of_measurement = PERCENTAGE
+    _attr_state_class = SensorStateClass.MEASUREMENT
+    _attr_suggested_display_precision = 1
+
+    def __init__(
+        self,
+        thermostat: Thermostat,
+        entry: ConfigEntry,
+        sensor_entities: dict[Thermostat, list[SensorEntity]],
+    ) -> None:
+        """Initialize the thermostat humidity sensor."""
+        self._thermostat = thermostat
+        self._sensor_entities = sensor_entities
+        self._attr_unique_id = f"{DOMAIN}_{thermostat.unique_id}_humidity"
+        base_label = _base_thermostat_label(thermostat)
+        self._attr_name = f"{base_label} Humidity"
+        self._attr_device_info = device_info(
+            entry, thermostat.zone_id, thermostat.zone_name
+        )
+
+    async def async_added_to_hass(self) -> None:
+        """Register this entity for push state updates."""
+        self._sensor_entities.setdefault(self._thermostat, []).append(self)
+
+    async def async_will_remove_from_hass(self) -> None:
+        """Unregister from push state updates."""
+        listeners = self._sensor_entities.get(self._thermostat)
+        if listeners and self in listeners:
+            listeners.remove(self)
+
+    @property
+    def native_value(self) -> float | None:
+        """Return the current measured relative humidity in %."""
+        return self._thermostat.humidity
+
